@@ -1,0 +1,5 @@
+timestamp,url,confidence,model,source,labeled,labeler_label,labeled_at
+2025-10-23 15:05:04.439332,chrome-extension://fdhgeoginicibhagdmblfikbgbkahibd/html/site_status_block_page.html,0.6972338046465762,phishing_model_v2,model,False,,
+2025-10-23 15:05:34.233664,chrome-extension://fdhgeoginicibhagdmblfikbgbkahibd/html/site_status_block_page.html,manual-report,extension,manual,False,,
+2025-10-24 13:36:19.322223,https://www.booking.com/index.html?aid=1670475&label=enin-edge-ntp-topsites-curate-ana&chal_t=1761292664832&force_referer=https%3A%2F%2Fntp.msn.com%2F,0.6356727010553787,phishing_model_v2,model,False,,
+2025-10-24 13:36:55.894802,https://www.booking.com/index.html?aid=1670475&label=enin-edge-ntp-topsites-curate-ana&chal_t=1761292664832&force_referer=https%3A%2F%2Fntp.msn.com%2F,0.6356727010553787,phishing_model_v2,model,False,,

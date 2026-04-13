@@ -43,8 +43,8 @@ def get_pending_reports_count() -> int:
     """Get count of unresolved reports"""
     try:
         df = read_dataframe("phishing_reports.csv")
-        if df.empty:
-            return 0
-        return len(df[~df.get('labeled', False)])
+        if df.empty or 'labeled' not in df.columns:
+            return len(df)
+        return len(df[df['labeled'].fillna(False) == False])
     except Exception:
         return 0

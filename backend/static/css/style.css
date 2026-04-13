@@ -314,9 +314,13 @@ body {
 /* ════════════════════════════════════════════════
    HUD PANELS
    ════════════════════════════════════════════════ */
-.panel-row { display: flex; gap: 16px; }
-.flex-1 { flex: 1; }
-.flex-2 { flex: 2; }
+.panel-row { 
+    display: flex; 
+    gap: 16px; 
+    flex-wrap: wrap; /* Allow wrapping on small screens */
+}
+.flex-1 { flex: 1; min-width: 300px; }
+.flex-2 { flex: 2; min-width: 300px; }
 
 .hud-panel {
     background: var(--bg-panel);
@@ -324,6 +328,7 @@ body {
     border-radius: 8px;
     overflow: hidden;
     position: relative;
+    min-width: 0; /* Prevents flex items from growing too large */
 }
 .hud-panel::before {
     content: '';
@@ -372,7 +377,7 @@ body {
     margin-bottom: 10px;
     font-size: 11px;
 }
-.source-name { width: 80px; color: var(--text-dim); letter-spacing: 1px; flex-shrink: 0; text-transform: uppercase; font-size: 9px; }
+.source-name { width: 90px; color: var(--text-dim); letter-spacing: 1px; flex-shrink: 0; text-transform: uppercase; font-size: 9px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .source-bar-track {
     flex: 1;
     height: 6px;
@@ -388,8 +393,8 @@ body {
     box-shadow: 0 0 6px rgba(0,245,255,0.3);
     transition: width 0.6s ease;
 }
-.source-pct { width: 36px; text-align: right; color: var(--neon-cyan); font-size: 10px; }
-.source-count { width: 28px; text-align: right; color: var(--text-dim); font-size: 10px; }
+.source-pct { width: 45px; text-align: right; color: var(--neon-cyan); font-size: 10px; flex-shrink: 0; }
+.source-count { width: 35px; text-align: right; color: var(--text-dim); font-size: 10px; flex-shrink: 0; }
 
 /* ════════════════════════════════════════════════
    FILTER FORM

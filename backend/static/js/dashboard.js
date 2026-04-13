@@ -1,70 +1,89 @@
-// Poll /reports.json every 5 seconds and update the table and stats
+// ── PhishGuard Dashboard Live Updater ──────────────────────────────────────
+
 async function fetchDashboardData() {
     try {
         const params = new URLSearchParams(window.location.search);
         const res = await fetch('/reports.json?' + params.toString());
-        if (!res.ok) return;
+        if (!res.ok) { console.warn('reports.json returned', res.status); return; }
         const data = await res.json();
-        if (data.error) return;
+        if (data.error) { console.warn('reports.json error:', data.error); return; }
 
-        // Update total
+        // ── Total count ──────────────────────────────────
         const totalBadge = document.getElementById('total-badge');
-        if (totalBadge) totalBadge.textContent = data.total;
+        if (totalBadge) totalBadge.textContent = data.total ?? 0;
 
-        // Update download link to include current filters
+        // ── Row count badge ──────────────────────────────
+        const rowCount = document.getElementById('row-count');
+        if (rowCount && data.rows) rowCount.textContent = data.rows.length + ' records';
+
+        // ── Download link with filters ───────────────────
         const downloadLink = document.getElementById('download-link');
         if (downloadLink) downloadLink.href = '/download-csv?' + params.toString();
 
-        // Update source stats
+        // ── Source distribution bars ─────────────────────
         const ss = document.getElementById('source-stats');
-        if (ss && data.source_percentages) {
-            ss.innerHTML = Object.keys(data.source_percentages).map(s => {
-                const pct = data.source_percentages[s] || 0;
-                const count = data.source_stats && data.source_stats[s] ? data.source_stats[s] : 0;
+        if (ss && data.source_percentages && Object.keys(data.source_percentages).length > 0) {
+            ss.innerHTML = Object.entries(data.source_percentages).map(([s, pct]) => {
+                const count = (data.source_stats && data.source_stats[s]) ? data.source_stats[s] : 0;
+                const pctNum = Number(pct) || 0;
                 return `
-                    <div class="source-stat-item mb-2">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="badge bg-info">${s}</span>
-                            <span class="badge bg-secondary">${count} (${pct}%)</span>
+                    <div class="source-bar-row">
+                        <span class="source-name">${s}</span>
+                        <div class="source-bar-track">
+                            <div class="source-bar-fill" style="width:${pctNum}%"></div>
                         </div>
-                        <div class="progress mt-1" style="height: 4px;">
-                            <div class="progress-bar" role="progressbar" style="width: ${pct}%"></div>
-                        </div>
+                        <span class="source-pct">${pctNum.toFixed(1)}%</span>
+                        <span class="source-count">${count}</span>
                     </div>`;
             }).join('');
         }
 
-        // Update table rows
+        // ── Threat log table ─────────────────────────────
         const tbody = document.getElementById('reports-tbody');
         if (tbody && Array.isArray(data.rows)) {
-            tbody.innerHTML = data.rows.map(r => `
-                <tr>
-                    <td>${r.timestamp}</td>
-                    <td><a href='${r.url}' target='_blank' class="text-break">${r.url}</a></td>
-                    <td><span class="${getConfidenceClass(r.confidence)}">${formatConfidence(r.confidence)}</span></td>
-                    <td><span class="badge bg-secondary">${r.model || ''}</span></td>
-                    <td><span class="badge bg-info">${r.source || ''}</span></td>
-                </tr>
-            `).join('');
+            if (data.rows.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="td-empty">— No threat records match current filters —</td></tr>';
+                return;
+            }
+            tbody.innerHTML = data.rows.map(r => {
+                const conf = parseFloat(r.confidence);
+                const confClass = isNaN(conf) ? 'low' : conf >= 0.8 ? 'high' : conf >= 0.5 ? 'mid' : 'low';
+                const confText = (v => (isNaN(v) || v == null) ? (r.confidence ?? '—') : v.toFixed(2))(conf);
+                
+                // Handle NaT (Not a Time) from pandas
+                let ts = String(r.timestamp || '—');
+                if (ts === 'NaT' || ts === 'nan' || ts === 'None') ts = '—';
+                
+                const url = escapeHtml(r.url || '—');
+                const model = escapeHtml(r.model || '—');
+                const source = escapeHtml(r.source || '—');
+                
+                return `
+                    <tr>
+                        <td class="td-time">${escapeHtml(ts)}</td>
+                        <td class="td-url"><a href="${url === '—' ? '#' : url}" target="_blank" rel="noopener">${url}</a></td>
+                        <td><span class="conf-badge ${confClass}">${escapeHtml(String(confText))}</span></td>
+                        <td><span class="tag model-tag">${model}</span></td>
+                        <td><span class="tag source-tag">${source}</span></td>
+                    </tr>`;
+            }).join('');
         }
+
     } catch (e) {
         console.error('Dashboard update error:', e);
     }
 }
 
-function getConfidenceClass(confidence) {
-    if (confidence === undefined || confidence === null) return 'text-muted';
-    const conf = parseFloat(confidence);
-    if (isNaN(conf)) return 'text-muted';
-    return conf >= 0.8 ? 'text-success' : conf >= 0.5 ? 'text-warning' : 'text-danger';
+// Safely escape HTML to prevent XSS in URL links
+function escapeHtml(str) {
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
 }
 
-function formatConfidence(confidence) {
-    if (confidence === undefined || confidence === null) return '';
-    const conf = parseFloat(confidence);
-    return isNaN(conf) ? '' : conf.toFixed(2);
-}
-
-// Start polling
+// ── Run immediately + poll every 10s ───────────────────────────────────────
 fetchDashboardData();
-setInterval(fetchDashboardData, 5000);
+setInterval(fetchDashboardData, 10000);

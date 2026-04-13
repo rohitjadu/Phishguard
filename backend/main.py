@@ -273,3 +273,13 @@ async def manual_report(req: dict):
     except Exception as e:
         logger.exception("Failed to write manual report: %s", e)
         return {"error": "Failed to record report"}, 500
+
+# ---------- Mount Admin Dashboard ----------
+# This lets /dashboard, /reports, /label, /static/* etc. all work
+# Main app routes (/predict, /report, /health) have priority.
+try:
+    from dashboard import app as _dashboard_app
+    app.mount("/", _dashboard_app)
+    logger.info("Dashboard mounted successfully at /")
+except Exception as _e:
+    logger.warning("Dashboard not mounted: %s", _e)

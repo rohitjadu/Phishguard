@@ -321,35 +321,35 @@ async def label_page(request: Request):
             """
 
         msg = request.query_params.get('msg', '')
-        header_line = '<h3>Runtime Predictions (most recent)</h3>' if not msg else f'<h3>Runtime Predictions (most recent) <small class="text-success">{msg}</small></h3>'
+        header_line = f'<h3 style="font-family:var(--font-title);color:var(--neon-cyan);font-size:15px;letter-spacing:3px">// RUNTIME PREDICTIONS</h3>' if not msg else f'<h3 style="font-family:var(--font-title);color:var(--neon-cyan);font-size:15px;letter-spacing:3px">// RUNTIME PREDICTIONS <small style="color:var(--neon-green);font-size:11px">{msg}</small></h3>'
 
         html = f"""
         <html>
         <head>
-            <title>Label Runtime Predictions</title>
-            <link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css\" rel=\"stylesheet\">
+            <title>PhishGuard — Label Data</title>
+            <link rel="preconnect" href="https://fonts.googleapis.com">
+            <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+            <link href="/static/css/style.css" rel="stylesheet">
         </head>
-        <body class=\"bg-light\">
-            <div class=\"container mt-4\">
-                {header_line}
-                <p>Click a button to label the URL; this will append to <code>labeled_urls.csv</code>.</p>
-                <div class=\"table-responsive\">
-                    <table class=\"table table-sm table-hover\">
-                        <thead>
-                            <tr>
-                                <th>Timestamp</th>
-                                <th>URL</th>
-                                <th>Probability</th>
-                                <th>Prediction</th>
-                                <th>Label</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {rows_html}
-                        </tbody>
-                    </table>
+        <body style="display:block;margin-left:0">
+            <div class="grid-bg"></div>
+            <div class="scanlines"></div>
+            <div style="padding:20px 28px;position:relative;z-index:2">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+                    {header_line}
+                    <a class="btn btn-secondary" href="/dashboard"><i class="bi bi-arrow-left"></i> Dashboard</a>
                 </div>
-                <a class=\"btn btn-secondary\" href=\"/dashboard\">Back to Dashboard</a>
+                <p style="color:var(--text-dim);margin-bottom:14px;font-size:12px">Click a button to label the URL — appends to <code style="color:var(--neon-cyan)">labeled_urls.csv</code>.</p>
+                <div class="hud-panel">
+                    <div class="panel-header"><span class="panel-title"><i class="bi bi-tag"></i> RUNTIME PREDICTIONS</span></div>
+                    <div class="table-responsive">
+                        <table class="hud-table">
+                            <thead><tr><th>TIMESTAMP</th><th>URL</th><th>PROBABILITY</th><th>PREDICTION</th><th>LABEL ACTION</th></tr></thead>
+                            <tbody>{rows_html}</tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </body>
         </html>
@@ -557,51 +557,43 @@ async def reports_page(request: Request):
         html = f"""
         <html>
         <head>
-            <title>Reports Admin</title>
-            <link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css\" rel=\"stylesheet\">
+            <title>PhishGuard — Reports Review</title>
+            <link rel="preconnect" href="https://fonts.googleapis.com">
+            <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+            <link href="/static/css/style.css" rel="stylesheet">
         </head>
-        <body class=\"bg-light\"> 
-            <div class=\"container mt-4\">
-                <h3>Reports Pending Review</h3>
-                
-                <div class="row mb-4">
-                    <div class="col">
-                        <div class="alert alert-info">
-                            <h5>⚠️ False Positive Reports</h5>
-                            <p>Users have reported these URLs as safe (false positives). Please review and confirm if they should be marked as safe in the dataset.</p>
-                        </div>
-                        <div class="table-responsive">
-                            <table class="table table-sm table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Timestamp</th>
-                                        <th>URL</th>
-                                        <th>Reporter</th>
-                                        <th>Status</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {pending_false_positives_html}
-                                </tbody>
-                            </table>
-                        </div>
+        <body style="display:block;margin-left:0">
+            <div class="grid-bg"></div>
+            <div class="scanlines"></div>
+            <div style="padding:20px 28px;position:relative;z-index:2">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+                    <h3 style="font-family:var(--font-title);color:var(--neon-cyan);font-size:15px;letter-spacing:3px">// REPORTS PENDING REVIEW</h3>
+                    <a class="btn btn-secondary" href="/dashboard"><i class="bi bi-arrow-left"></i> Dashboard</a>
+                </div>
+
+                <div class="hud-panel" style="margin-bottom:20px">
+                    <div class="panel-header">
+                        <span class="panel-title"><i class="bi bi-exclamation-triangle"></i> FALSE POSITIVE QUEUE</span>
+                        <span style="font-size:10px;color:var(--neon-orange)">Users reported these as safe — verify before approving</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="hud-table">
+                            <thead><tr><th>TIMESTAMP</th><th>URL TARGET</th><th>REPORTER</th><th>STATUS</th><th>RESOLVE</th></tr></thead>
+                            <tbody>{pending_false_positives_html}</tbody>
+                        </table>
                     </div>
                 </div>
 
-                <h4>Other Pending Reports</h4>
-                <p>Mark reports below as Safe or Phishing. This will append to <code>labeled_urls.csv</code> and mark the report resolved.</p>
-                <div class=\"table-responsive\">
-                    <table class=\"table table-sm table-hover\">
-                        <thead>
-                            <tr><th>Timestamp</th><th>URL</th><th>Confidence</th><th>Model</th><th>Source</th><th>Action</th></tr>
-                        </thead>
-                        <tbody>
-                            {rows_html}
-                        </tbody>
-                    </table>
+                <div class="hud-panel">
+                    <div class="panel-header"><span class="panel-title"><i class="bi bi-flag"></i> PENDING THREAT REPORTS</span></div>
+                    <div class="table-responsive">
+                        <table class="hud-table">
+                            <thead><tr><th>TIMESTAMP</th><th>URL TARGET</th><th>CONFIDENCE</th><th>MODEL</th><th>SOURCE</th><th>RESOLVE</th></tr></thead>
+                            <tbody>{rows_html}</tbody>
+                        </table>
+                    </div>
                 </div>
-                <a class=\"btn btn-secondary\" href=\"/dashboard\">Back to Dashboard</a>
             </div>
         </body>
         </html>
@@ -721,5 +713,3 @@ async def resolve_report(url: str = Form(...), timestamp: str = Form(None), labe
         return RedirectResponse(url="/reports", status_code=303)
     except Exception as e:
         return HTMLResponse(content=f"<h3>Error resolving report</h3><p>{str(e)}</p>", status_code=500)
-
-

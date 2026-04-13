@@ -9,7 +9,7 @@ https://github.com,0
 https://stackoverflow.com,0
 https://wikipedia.org,0
 https://openai.com,0
-# Additional labeled examples to improve training (balanced phishing and benign samples),
+# Additional labeled examples to improve training (balanced phishing and benign samples)
 http://secure-login-paypal.com/login,1
 http://paypal-secure-update.com,1
 http://account-verification-google.com,1
@@ -74,8 +74,3 @@ https://www.booking.com/index.html?aid=1670475&label=enin-edge-ntp-topsites-cura
 https://www.amazon.in/Prime-Videos/b?ie=UTF8&node=10882806031&pd_rd_w=5ql3x&content-id=amzn1.sym.087cd6b5-ffab-4729-96bb-a3def1c9ea17:amzn1.sym.087cd6b5-ffab-4729-96bb-a3def1c9ea17&pf_rd_p=087cd6b5-ffab-4729-96bb-a3def1c9ea17&pf_rd_r=F84X5H6NTCZQAB721JN5&pd_rd_wg=8xJGB&pd_rd_r=08e5f043-fbbd-4533-adcb-f41804b7c48c&qid=1761299597&ref_=sxts_snpl_1_0_087cd6b5-ffab-4729-96bb-a3def1c9ea17,0
 https://quillbot.com/grammar-check/d/179a04ef-eb3f-408b-9ac2-7094ae9b6ad4,0
 https://meet.google.com/swg-sfzv-cqe,0
-http://127.0.0.1:8001/docs#/default/manual_report_report_post,0
-http://127.0.0.1:8000/reports,0
-https://www.myntra.com/skin-care-combo/the+derma+co./the-derma-co-anti-pigmentation-combo-with-kojic-acid---face-wash-100-ml--serum-30-ml/29237734/buy,0
-https://www.amazon.in/ZEBRONICS-Lightning-Converter-Aluminum-Compatible/dp/B0DS65JXJT/ref=rvi_d_sccl_9/260-3706316-3130415?pd_rd_w=lF6DU&content-id=amzn1.sym.2fa5ef78-d215-4b54-bdb7-fa3d3620b822&pf_rd_p=2fa5ef78-d215-4b54-bdb7-fa3d3620b822&pf_rd_r=A03EKDKX7GP52N9PYRCS&pd_rd_wg=ZFx3z&pd_rd_r=727aa2c6-6f76-47c9-8c75-05ee787034c9&pd_rd_i=B0DS65JXJT&psc=1,0
-https://www.booking.com/index.html?aid=1670475&label=enin-edge-ntp-topsites-curate-ana&chal_t=1761895924508&force_referer=https%3A%2F%2Fntp.msn.com%2F,0

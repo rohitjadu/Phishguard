@@ -236,44 +236,48 @@ async def reports_json(
         source_stats = df['source'].value_counts().to_dict() if 'source' in df.columns else {}
         source_percentages = (df['source'].value_counts(normalize=True) * 100).round(1).to_dict() if 'source' in df.columns else {}
 
-        # Sanitize values to avoid NaN / numpy types which json.dumps doesn't like
-        def sanitize_value(v):
+        # Safely convert each row — preserve strings, convert numerics
+        def safe_val(v):
             try:
                 if pd.isna(v):
                     return None
             except Exception:
                 pass
-            # convert pandas/numpy numeric types to python native
-            try:
-                if isinstance(v, (int, float)):
-                    if isinstance(v, float) and (v != v):
-                        return None
-                    return v
-                return float(v)
-            except Exception:
-                try:
-                    return int(v)
-                except Exception:
-                    return str(v)
+            import numpy as np
+            if isinstance(v, (np.integer,)):
+                return int(v)
+            if isinstance(v, (np.floating,)):
+                return None if np.isnan(v) else float(v)
+            if isinstance(v, float):
+                return None if v != v else v
+            if isinstance(v, int):
+                return v
+            return str(v) if v is not None else None
 
-        rows_sanitized = []
-        for rec in rows:
-            out = {}
-            for k, v in rec.items():
-                out[k] = sanitize_value(v)
-            rows_sanitized.append(out)
+        rows_sanitized = [
+            {k: safe_val(v) for k, v in rec.items()}
+            for rec in rows
+        ]
 
-        source_stats_sanitized = {str(k): int(v) if (not pd.isna(v)) else 0 for k, v in source_stats.items()} if source_stats else {}
-        source_percentages_sanitized = {str(k): float(v) if (not pd.isna(v)) else 0.0 for k, v in source_percentages.items()} if source_percentages else {}
+        def safe_int(v):
+            try: return int(v)
+            except: return 0
+        def safe_float(v):
+            try: return float(v)
+            except: return 0.0
+
+        source_stats_out = {str(k): safe_int(v) for k, v in source_stats.items()} if source_stats else {}
+        source_pct_out   = {str(k): safe_float(v) for k, v in source_percentages.items()} if source_percentages else {}
 
         return {
             "total": int(total),
             "rows": rows_sanitized,
-            "source_stats": source_stats_sanitized,
-            "source_percentages": source_percentages_sanitized,
+            "source_stats": source_stats_out,
+            "source_percentages": source_pct_out,
         }
     except Exception as e:
-        return {"error": str(e)}
+        import traceback
+        return {"error": str(e), "trace": traceback.format_exc()}
 
 
 @app.get("/label", response_class=HTMLResponse)

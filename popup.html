@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>PhishGuard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --neon-cyan: #00f5ff;
+      --neon-blue: #0080ff;
+      --neon-red: #ff2d55;
+      --neon-green: #00ff88;
+      --neon-orange: #ff9500;
+      --bg-deep: #020812;
+      --bg-panel: #050e1a;
+      --bg-card: #081525;
+      --border-dim: rgba(0, 245, 255, 0.15);
+      --border-bright: rgba(0, 245, 255, 0.6);
+      --text-primary: #e0f4ff;
+      --text-dim: #4a7a99;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      width: 340px;
+      min-height: 420px;
+      background: var(--bg-deep);
+      font-family: 'Share Tech Mono', monospace;
+      color: var(--text-primary);
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ── Animated grid background ── */
+    .grid-bg {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,245,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,245,255,0.04) 1px, transparent 1px);
+      background-size: 28px 28px;
+      animation: gridMove 8s linear infinite;
+      pointer-events: none;
+    }
+    @keyframes gridMove {
+      0%   { background-position: 0 0; }
+      100% { background-position: 28px 28px; }
+    }
+
+    /* ── Corner brackets ── */
+    .corner {
+      position: absolute;
+      width: 16px; height: 16px;
+      border-color: var(--neon-cyan);
+      border-style: solid;
+      opacity: 0.7;
+      z-index: 10;
+    }
+    .corner-tl { top: 6px; left: 6px;  border-width: 2px 0 0 2px; }
+    .corner-tr { top: 6px; right: 6px; border-width: 2px 2px 0 0; }
+    .corner-bl { bottom: 6px; left: 6px;  border-width: 0 0 2px 2px; }
+    .corner-br { bottom: 6px; right: 6px; border-width: 0 2px 2px 0; }
+
+    /* ── Main container ── */
+    .container {
+      position: relative;
+      z-index: 2;
+      padding: 20px 18px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* ── Header ── */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-hex {
+      position: relative;
+      width: 48px;
+      height: 48px;
+      flex-shrink: 0;
+    }
+    .logo-hex svg { width: 100%; height: 100%; }
+    .logo-hex .pulse-ring {
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      border: 1px solid var(--neon-cyan);
+      opacity: 0;
+      animation: pulseRing 2.5s ease-out infinite;
+    }
+    .logo-hex .pulse-ring:nth-child(2) { animation-delay: 1.25s; }
+    @keyframes pulseRing {
+      0%   { transform: scale(0.8); opacity: 0.8; }
+      100% { transform: scale(1.5); opacity: 0; }
+    }
+
+    .header-text { flex: 1; }
+    .header-text h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      color: var(--neon-cyan);
+      text-shadow: 0 0 10px rgba(0,245,255,0.6);
+      line-height: 1;
+      margin-bottom: 3px;
+    }
+    .header-text .tagline {
+      font-size: 9px;
+      color: var(--text-dim);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .status-dot {
+      width: 8px; height: 8px;
+      background: var(--neon-green);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--neon-green);
+      animation: blink 2s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.3; }
+    }
+
+    /* ── Divider ── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
+      opacity: 0.3;
+    }
+
+    /* ── URL Panel ── */
+    .url-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-dim);
+      border-radius: 6px;
+      padding: 10px 12px;
+      position: relative;
+      overflow: hidden;
+    }
+    .url-panel::before {
+      content: 'TARGET';
+      position: absolute;
+      top: 5px; right: 8px;
+      font-size: 8px;
+      letter-spacing: 2px;
+      color: var(--text-dim);
+      font-family: 'Orbitron', sans-serif;
+    }
+    .url-label {
+      font-size: 8px;
+      color: var(--neon-cyan);
+      letter-spacing: 2px;
+      margin-bottom: 4px;
+      opacity: 0.7;
+    }
+    #status {
+      font-size: 11px;
+      color: var(--text-primary);
+      word-break: break-all;
+      line-height: 1.5;
+      min-height: 16px;
+      transition: color 0.3s;
+    }
+    #status.danger { color: var(--neon-red); }
+    #status.safe   { color: var(--neon-green); }
+    #status.scan   { color: var(--neon-cyan); }
+
+    /* ── Scan animation bar ── */
+    .scan-bar {
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
+      margin-top: 8px;
+      opacity: 0;
+      border-radius: 2px;
+      animation: none;
+    }
+    .scan-bar.active {
+      opacity: 1;
+      animation: scanMove 1s ease-in-out infinite;
+    }
+    @keyframes scanMove {
+      0%   { transform: translateX(-100%); opacity: 0; }
+      50%  { opacity: 1; }
+      100% { transform: translateX(200%); opacity: 0; }
+    }
+
+    /* ── Result card ── */
+    #result {
+      display: none;
+      border-radius: 6px;
+      padding: 12px 14px;
+      font-size: 12px;
+      border: 1px solid;
+      position: relative;
+      overflow: hidden;
+      animation: fadeIn 0.4s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    #result.safe {
+      background: rgba(0, 255, 136, 0.07);
+      border-color: rgba(0, 255, 136, 0.4);
+      color: var(--neon-green);
+    }
+    #result.phishing {
+      background: rgba(255, 45, 85, 0.08);
+      border-color: rgba(255, 45, 85, 0.5);
+      color: var(--neon-red);
+    }
+    #result.suspicious {
+      background: rgba(255, 149, 0, 0.07);
+      border-color: rgba(255, 149, 0, 0.4);
+      color: var(--neon-orange);
+    }
+    .result-icon {
+      font-size: 18px;
+      margin-bottom: 4px;
+      display: block;
+    }
+    .result-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      margin-bottom: 3px;
+    }
+    .result-detail {
+      font-size: 10px;
+      opacity: 0.75;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── Buttons ── */
+    .btn-row { display: flex; gap: 8px; }
+
+    button {
+      flex: 1;
+      padding: 11px 8px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      border: 1px solid;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+      text-transform: uppercase;
+    }
+    button::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 100%);
+      pointer-events: none;
+    }
+
+    #predict {
+      background: rgba(0,128,255,0.1);
+      border-color: rgba(0,128,255,0.6);
+      color: #6fc0ff;
+      box-shadow: 0 0 12px rgba(0,128,255,0.15), inset 0 0 12px rgba(0,128,255,0.05);
+    }
+    #predict:hover:not(:disabled) {
+      background: rgba(0,128,255,0.2);
+      border-color: rgba(0,128,255,0.9);
+      color: #ffffff;
+      box-shadow: 0 0 20px rgba(0,128,255,0.4), inset 0 0 16px rgba(0,128,255,0.1);
+    }
+    #predict:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    #reportBtn {
+      display: none;
+      flex: 1;
+      background: rgba(255,45,85,0.1);
+      border-color: rgba(255,45,85,0.6);
+      color: #ff7aa0;
+      box-shadow: 0 0 12px rgba(255,45,85,0.15), inset 0 0 12px rgba(255,45,85,0.05);
+    }
+    #reportBtn:hover {
+      background: rgba(255,45,85,0.2);
+      border-color: rgba(255,45,85,0.9);
+      color: #fff;
+      box-shadow: 0 0 20px rgba(255,45,85,0.4), inset 0 0 16px rgba(255,45,85,0.1);
+    }
+
+    /* ── Footer ── */
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer-tag {
+      font-size: 8px;
+      color: var(--text-dim);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+    .version-badge {
+      font-size: 8px;
+      font-family: 'Orbitron', sans-serif;
+      color: var(--neon-cyan);
+      opacity: 0.5;
+      letter-spacing: 1px;
+    }
+
+    /* scanning overlay effect */
+    .scanning-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0;
+      transition: opacity 0.3s;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 245, 255, 0.015) 2px,
+        rgba(0, 245, 255, 0.015) 4px
+      );
+    }
+    body.scanning .scanning-overlay { opacity: 1; }
+    body.scanning .status-dot { background: var(--neon-cyan); box-shadow: 0 0 8px var(--neon-cyan); animation: none; }
+  </style>
+</head>
+<body>
+  <div class="scanning-overlay"></div>
+  <div class="grid-bg"></div>
+  <div class="corner corner-tl"></div>
+  <div class="corner corner-tr"></div>
+  <div class="corner corner-bl"></div>
+  <div class="corner corner-br"></div>
+
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <div class="logo-hex">
+        <div class="pulse-ring"></div>
+        <div class="pulse-ring"></div>
+        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <filter id="glow">
+              <feGaussianBlur stdDeviation="1.5" result="blur"/>
+              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+          </defs>
+          <!-- Hexagon -->
+          <polygon points="24,3 42,13.5 42,34.5 24,45 6,34.5 6,13.5"
+            fill="rgba(0,245,255,0.06)"
+            stroke="rgba(0,245,255,0.8)"
+            stroke-width="1.5"
+            filter="url(#glow)"/>
+          <!-- Inner hex -->
+          <polygon points="24,9 38,17 38,31 24,39 10,31 10,17"
+            fill="none"
+            stroke="rgba(0,245,255,0.25)"
+            stroke-width="0.8"/>
+          <!-- Shield icon -->
+          <path d="M24 14 L32 18 L32 26 C32 31 24 35 24 35 C24 35 16 31 16 26 L16 18 Z"
+            fill="rgba(0,245,255,0.12)"
+            stroke="rgba(0,245,255,0.9)"
+            stroke-width="1.2"
+            stroke-linejoin="round"
+            filter="url(#glow)"/>
+          <!-- Checkmark / scan line -->
+          <line x1="19" y1="25" x2="22.5" y2="28.5" stroke="#00f5ff" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="22.5" y1="28.5" x2="29" y2="21" stroke="#00f5ff" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+
+      <div class="header-text">
+        <h1>PHISHGUARD</h1>
+        <div class="tagline">Neural Threat Detection v1.1</div>
+      </div>
+
+      <div class="status-dot" id="statusDot"></div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- URL / Status Panel -->
+    <div class="url-panel">
+      <div class="url-label">// SCAN TARGET</div>
+      <div id="status">Awaiting scan command...</div>
+      <div class="scan-bar" id="scanBar"></div>
+    </div>
+
+    <!-- Result -->
+    <div id="result">
+      <span class="result-icon" id="resultIcon"></span>
+      <div class="result-title" id="resultTitle"></div>
+      <div class="result-detail" id="resultDetail"></div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="btn-row">
+      <button id="predict">⬡ Scan Site</button>
+      <button id="reportBtn">⚠ Report</button>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <span class="footer-tag">ML Engine · Live Backend</span>
+      <span class="version-badge">SYS v1.1</span>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

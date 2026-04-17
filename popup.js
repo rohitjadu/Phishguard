@@ -89,7 +89,7 @@ async function predictSite() {
   }, 700);
 
   try {
-    const resp = await fetch('https://phishguard-production-c380.up.railway.app/predict', {
+    const resp = await fetch('https://phishguard-production-034d.up.railway.app/predict', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ url })
@@ -130,7 +130,7 @@ async function reportPhishing(url) {
     );
     const action = isFalsePositive ? 'false_positive' : 'new';
 
-    const resp = await fetch('https://phishguard-production-c380.up.railway.app/report', {
+    const resp = await fetch('https://phishguard-production-034d.up.railway.app/report', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
